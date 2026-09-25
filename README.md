@@ -46,6 +46,7 @@ mvn test
 ## Current Status
 **Phase 0 (Planning & Documentation): COMPLETE**
 **Phase 1 (Project Foundation): COMPLETE**
+**Phase 2 (Database Schema): COMPLETE**
 
 Live, authoritative status: [`docs/13-reference/memory.md`](docs/13-reference/memory.md)
 

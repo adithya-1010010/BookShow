@@ -1,6 +1,6 @@
 # Database Design — Overview
 
-SQLite, single local file (e.g. `data/moviebooking.db`), created/managed by `DatabaseManager`.
+SQLite, single local file at `./data/moviebooking.db`, created/managed by `DatabaseManager`.
 
 ## Tables
 - `movie` — movie catalog

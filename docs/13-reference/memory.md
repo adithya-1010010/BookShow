@@ -58,7 +58,9 @@ The UI must be a genuinely polished, premium-feeling interface — explicitly ta
 - Do not add further inheritance/polymorphism beyond these unless a genuine new design need arises — do not force OOP concepts.
 
 ## Database Decisions
+- Runtime database file: `./data/moviebooking.db`; `DatabaseManager` creates its parent directory and schema automatically.
 - 6 tables: `movie`, `theatre`, `show`, `seat`, `booking`, `booking_seat`. Full DDL in `docs/08-database/schema.md`.
+- The shared JDBC connection enables SQLite foreign-key enforcement with `PRAGMA foreign_keys = ON`.
 - Duplicate-seat prevention enforced at the DB layer via conditional `UPDATE ... WHERE booked = 0` + transaction rollback on any failed row — not just app-level checks.
 - Exact seed dataset (movie titles, theatre name(s), show count/times, seats-per-show grid size) is **NOT YET FINALIZED** — to be decided and recorded here during Phase 3 implementation, using placeholder/generic data unless the user supplies real values.
 - Booking ID format is **NOT YET FINALIZED** — proposed default `BK-<yyyyMMddHHmmss>-<3-digit-seq>`, to be confirmed/recorded during Phase 5.
@@ -68,7 +70,7 @@ The UI must be a genuinely polished, premium-feeling interface — explicitly ta
 ```
 Phase  0 (Documentation & Planning) — COMPLETE
 Phase  1 (Project Foundation)        — COMPLETE
-Phase  2 (Database Schema)           — NOT STARTED
+Phase  2 (Database Schema)           — COMPLETE
 Phase  3 (Domain Model + Seed Data)  — NOT STARTED
 Phase  4 (DAO Layer)                 — NOT STARTED
 Phase  5 (Business Logic)            — NOT STARTED
@@ -84,6 +86,8 @@ Phase 10 (Final Testing/Polish)      — NOT STARTED
 - The user reconfirmed that the application has no login or authentication.
 - Phase 1 pins JavaFX `17.0.20`, SQLite JDBC `3.53.4.0`, JUnit Jupiter `5.14.4`, and JavaFX Maven plugin `0.0.8`.
 - Local Phase 1 verification used the available Maven JDK 26 runtime while `maven.compiler.release=17` kept the project bytecode target at Java 17.
+- Phase 2 creates `./data/moviebooking.db` before the Home scene loads; manual first-run and re-run checks confirmed all 6 tables exist and remain empty.
+- `DatabaseManagerTest` uses an isolated temporary SQLite file and verifies the exact table/column sets, empty initial rows, shared connection reuse, foreign-key enforcement, and repeated initialization.
 
 ## Problems and Resolutions
 - The first Phase 1 launch exposed a missing `fx` namespace declaration in `Home.fxml`. Adding the JavaFX FXML namespace resolved it; `mvn clean install` and `mvn clean javafx:run` then succeeded, and the Home window was manually verified and closed cleanly.

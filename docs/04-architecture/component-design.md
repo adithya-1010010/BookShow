@@ -17,7 +17,7 @@
 | `BookingService` | Orchestrates booking creation | seatDao, bookingDao, pricingStrategy | createBooking(...), validateSeats(...) | SeatDao, BookingDao, PricingStrategy | Polymorphism (via strategy), Encapsulation |
 | `*Dao` (interfaces) | Persistence contracts per entity | — | CRUD/read methods | Model | Interface-based polymorphism |
 | `Sqlite*Dao` | JDBC implementations | Connection | implements interface methods | DatabaseManager | Polymorphism, Encapsulation |
-| `DatabaseManager` | Connection + schema lifecycle | connection | init(), getConnection() | — | Encapsulation |
+| `DatabaseManager` | Connection + schema lifecycle | connection | init(), getConnection(), close() | — | Encapsulation |
 | `SeedData` | Idempotent initial data insert | — | seedIfEmpty() | DAOs | — |
 | `BookingIdGenerator` | Unique ID generation | — | generate() | — | Utility |
 
