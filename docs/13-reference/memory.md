@@ -79,7 +79,7 @@ Phase  2 (Database Schema)           — COMPLETE
 Phase  3 (Domain Model + Seed Data)  — COMPLETE
 Phase  4 (DAO Layer)                 — COMPLETE
 Phase  5 (Business Logic)            — COMPLETE
-Phase  6 (UI: Movies/Shows)          — NOT STARTED
+Phase  6 (UI: Movies/Shows)          — COMPLETE
 Phase  7 (UI: Seat Selection)        — NOT STARTED
 Phase  8 (UI: Customer/Confirmation) — NOT STARTED
 Phase  9 (Validation/Error Handling) — NOT STARTED
@@ -106,6 +106,13 @@ Phase 10 (Final Testing/Polish)      — NOT STARTED
 - Two extra classes beyond the Phase 5 file list were added deliberately: `service/PricingStrategySelector` (encapsulates the day-of-week rule so `BookingService` stays free of `if/else` on strategy type) and `dao/SeatConflictException extends DataAccessException` (lets the service convert a DB-level seat conflict into `SeatUnavailableException` without fragile message string-matching).
 - Phase 5 tests cover TC-003, TC-004, TC-005, TC-006, TC-012 plus validation edge cases. 49 tests total, all passing.
 - Booking totals are stored as raw doubles; **display formatting to 2 decimal places is a UI-layer concern** (Phase 6-8), so no rounding is applied in the service or DAO.
+- Phase 6 added a `ui/` support package that is shared by all screens: `Screens` (FXML path constants + window size), `SceneNavigator` (static navigator that owns the `Stage`, builds scenes, attaches `styles.css` once per scene, and plays a 220 ms fade), `BookingSession` (singleton in-memory state carrying the selected movie/show/seats between screens and the resulting booking code), `AppServices` (singleton service registry so FXML-instantiated controllers can receive services without a DI framework), and `Currency` (single `NumberFormat` for USD display).
+- `styles.css` implements the dark cinematic theme from `09-ui/ui-design.md`: base `#0b0f16`, surfaces `#151b26`/`#1c2431`, amber accent `#f5a524`, defined **once** as looked-up colors on the `.root` selector and referenced everywhere else (JavaFX has no CSS custom properties; looked-up colors are its equivalent).
+- `MovieListController` builds true card nodes in Java inside a `FlowPane` (poster block with initials glyph, title, genre chip, price, duration, "View Shows" button) because `fx:repeat` only works with `ListView`/`TableView` and the design calls for a card grid, not a list.
+- `ShowSelectionController` builds single-select show rows as `ToggleButton`s sharing a `ToggleGroup`, each holding its `Show` as `userData`; the Continue button stays disabled until a row is selected (TC-011).
+- Phase 6 included a **sanctioned stub** `SeatSelection.fxml`/`SeatSelectionController` so Continue has a valid navigation target; Phase 7 replaces it with the real seat map.
+- Phase 6 Problems and Resolutions: FXML cannot place a `ToggleGroup` as a child node ("Unable to coerce ToggleGroup to class javafx.scene.Node"), so the group is created in the controller instead; and `ToggleGroup` pre-selects its first toggle, so `showGroup.selectToggle(null)` is called after the rows are built to guarantee nothing is selected on arrival. Also corrected a wrong `setFullWidth`/`setSelectedToggle` assumption (those are not `ToggleButton`/`ToggleGroup` APIs — use `setMaxWidth`/`selectToggle`).
+- UI verification approach: since this session cannot view images, screens were verified with a **throwaway JavaFX snapshot harness kept outside the repo** (`/tmp/bsharness/`) that loads each FXML, applies `styles.css`, and writes a PNG. A pixel analysis confirmed the theme renders (Home: 98% base background + accent text/button; Movie List: cards, poster blocks and accent buttons; Show Selection: header/footer surfaces and show rows, and correctly *no* accent because nothing is selected). The harness is never committed.
 
 ## Problems and Resolutions
 - The first Phase 1 launch exposed a missing `fx` namespace declaration in `Home.fxml`. Adding the JavaFX FXML namespace resolved it; `mvn clean install` and `mvn clean javafx:run` then succeeded, and the Home window was manually verified and closed cleanly.
@@ -132,6 +139,12 @@ New decision: The rule is encapsulated in `service/PricingStrategySelector.forDa
 Reason: `07-oop/polymorphism.md` explicitly requires that BookingService call `priceFor(...)` polymorphically without an `if/else` on show type. Keeping the rule in a separate selector honours that goal and makes the rule independently unit-testable.
 Date/Phase: 2026-09-25 / Phase 5
 Affected components: `service/PricingStrategySelector.java`, `service/BookingService.java`, `04-architecture/component-design.md`
+
+Previous decision: `controller/` would be instantiated with no dependencies and reach services ad hoc.
+New decision: FXML controllers read services from the `ui/AppServices` singleton and navigation state from the `ui/BookingSession` singleton; both are wired once in `MainApp.start()`.
+Reason: `FXMLLoader` instantiates controllers through their no-arg constructors, so constructor injection is not available without a DI framework (none is confirmed for this project). A single composition root in `MainApp` keeps construction centralised and keeps `controller/` free of SQL and of `dao/` access, preserving UI -> Service -> DAO.
+Date/Phase: 2026-09-25 / Phase 6
+Affected components: `ui/`, `MainApp.java`, all `controller/` classes
 ```
 
 ## Open Questions (must be resolved before the relevant phase begins)

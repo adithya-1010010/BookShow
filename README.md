@@ -50,6 +50,7 @@ mvn test
 **Phase 3 (Domain Model + Seed Data): COMPLETE**
 **Phase 4 (DAO Layer): COMPLETE**
 **Phase 5 (Business Logic): COMPLETE**
+**Phase 6 (UI: Movies/Shows): COMPLETE**
 
 Live, authoritative status: [`docs/13-reference/memory.md`](docs/13-reference/memory.md)
 

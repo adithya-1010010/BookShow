@@ -1,0 +1,447 @@
+/* BookShow — shared theme (dark cinematic + amber accent) */
+
+.root {
+    -fx-font-family: "Segoe UI", "Helvetica Neue", "Arial", sans-serif;
+    -fx-font-size: 14px;
+
+    -fx-bg-base: #0b0f16;
+    -fx-bg-surface: #151b26;
+    -fx-bg-elevated: #1c2431;
+    -fx-bg-hover: #232c3b;
+    -fx-border-subtle: #273041;
+    -fx-border-strong: #3a465c;
+
+    -fx-accent: #f5a524;
+    -fx-accent-strong: #ffb84d;
+    -fx-accent-ink: #221704;
+
+    -fx-text-primary: #e8edf5;
+    -fx-text-secondary: #9aa7bd;
+    -fx-text-muted: #6b7789;
+
+    -fx-danger: #ef5350;
+    -fx-danger-dim: #3a1f22;
+    -fx-success: #4caf7d;
+}
+
+/* ---------- Shell ---------- */
+
+.app-shell {
+    -fx-background-color: -fx-bg-base;
+}
+
+.screen-body {
+    -fx-background-color: -fx-bg-base;
+    -fx-padding: 28 34 30 34;
+}
+
+.header-bar {
+    -fx-background-color: -fx-bg-surface;
+    -fx-padding: 16 28 16 28;
+    -fx-border-color: transparent transparent -fx-border-subtle transparent;
+    -fx-border-width: 0 0 1 0;
+}
+
+.footer-bar {
+    -fx-background-color: -fx-bg-surface;
+    -fx-padding: 14 28 14 28;
+    -fx-border-color: -fx-border-subtle transparent transparent transparent;
+    -fx-border-width: 1 0 0 0;
+}
+
+/* ---------- Typography ---------- */
+
+.brand {
+    -fx-text-fill: -fx-accent;
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+}
+
+.screen-title {
+    -fx-text-fill: -fx-text-primary;
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
+}
+
+.screen-subtitle {
+    -fx-text-fill: -fx-text-secondary;
+    -fx-font-size: 13px;
+}
+
+.hero-title {
+    -fx-text-fill: -fx-text-primary;
+    -fx-font-size: 46px;
+    -fx-font-weight: bold;
+}
+
+.hero-subtitle {
+    -fx-text-fill: -fx-text-secondary;
+    -fx-font-size: 16px;
+}
+
+.muted {
+    -fx-text-fill: -fx-text-secondary;
+}
+
+.muted-strong {
+    -fx-text-fill: -fx-text-primary;
+}
+
+.section-label {
+    -fx-text-fill: -fx-text-muted;
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+}
+
+.field-label {
+    -fx-text-fill: -fx-text-secondary;
+    -fx-font-size: 12px;
+}
+
+.value-text {
+    -fx-text-fill: -fx-text-primary;
+    -fx-font-size: 15px;
+    -fx-font-weight: bold;
+}
+
+.money {
+    -fx-text-fill: -fx-accent-strong;
+    -fx-font-size: 20px;
+    -fx-font-weight: bold;
+}
+
+/* ---------- Buttons ---------- */
+
+.primary-button {
+    -fx-background-color: -fx-accent;
+    -fx-text-fill: -fx-accent-ink;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-background-radius: 8;
+    -fx-padding: 11 24 11 24;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.45), 14, 0.15, 0, 4);
+}
+
+.primary-button:hover {
+    -fx-background-color: -fx-accent-strong;
+}
+
+.primary-button:pressed {
+    -fx-background-color: #d98f16;
+    -fx-translate-y: 1;
+}
+
+.primary-button:disabled {
+    -fx-background-color: #2b3444;
+    -fx-text-fill: #5d6a7d;
+    -fx-effect: none;
+    -fx-cursor: default;
+}
+
+.ghost-button {
+    -fx-background-color: transparent;
+    -fx-text-fill: -fx-text-secondary;
+    -fx-font-size: 13px;
+    -fx-padding: 9 18 9 18;
+    -fx-background-radius: 8;
+    -fx-border-color: -fx-border-subtle;
+    -fx-border-width: 1;
+    -fx-border-radius: 8;
+    -fx-cursor: hand;
+}
+
+.ghost-button:hover {
+    -fx-background-color: -fx-bg-hover;
+    -fx-text-fill: -fx-text-primary;
+    -fx-border-color: -fx-border-strong;
+}
+
+.ghost-button:disabled {
+    -fx-opacity: 0.45;
+    -fx-cursor: default;
+}
+
+/* ---------- Cards ---------- */
+
+.card {
+    -fx-background-color: -fx-bg-surface;
+    -fx-background-radius: 14;
+    -fx-border-color: -fx-border-subtle;
+    -fx-border-width: 1;
+    -fx-border-radius: 14;
+    -fx-padding: 18;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.35), 16, 0.12, 0, 6);
+}
+
+.card:hover {
+    -fx-border-color: -fx-accent;
+    -fx-background-color: -fx-bg-elevated;
+}
+
+.poster-block {
+    -fx-background-color: -fx-bg-elevated;
+    -fx-background-radius: 10;
+    -fx-border-color: -fx-border-subtle;
+    -fx-border-radius: 10;
+    -fx-alignment: center;
+}
+
+.poster-glyph {
+    -fx-text-fill: -fx-accent;
+    -fx-font-size: 26px;
+    -fx-font-weight: bold;
+}
+
+.card-title {
+    -fx-text-fill: -fx-text-primary;
+    -fx-font-size: 17px;
+    -fx-font-weight: bold;
+}
+
+.chip {
+    -fx-background-color: -fx-bg-hover;
+    -fx-background-radius: 20;
+    -fx-padding: 3 10 3 10;
+    -fx-border-color: -fx-border-subtle;
+    -fx-border-radius: 20;
+}
+
+.chip-text {
+    -fx-text-fill: -fx-text-secondary;
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+}
+
+/* ---------- Show rows ---------- */
+
+.show-row {
+    -fx-background-color: -fx-bg-surface;
+    -fx-background-radius: 12;
+    -fx-border-color: -fx-border-subtle;
+    -fx-border-width: 1;
+    -fx-border-radius: 12;
+    -fx-padding: 16 18 16 18;
+    -fx-alignment: center-left;
+    -fx-cursor: hand;
+}
+
+.show-row:hover {
+    -fx-background-color: -fx-bg-hover;
+    -fx-border-color: -fx-border-strong;
+}
+
+.show-row:selected {
+    -fx-background-color: -fx-bg-hover;
+    -fx-border-color: -fx-accent;
+    -fx-border-width: 2;
+}
+
+.show-row:focused {
+    -fx-border-color: -fx-accent;
+}
+
+.show-time {
+    -fx-text-fill: -fx-text-primary;
+    -fx-font-size: 19px;
+    -fx-font-weight: bold;
+}
+
+.show-date {
+    -fx-text-fill: -fx-text-secondary;
+    -fx-font-size: 13px;
+}
+
+/* ---------- Seat grid ---------- */
+
+.seat {
+    -fx-background-color: transparent;
+    -fx-background-radius: 8;
+    -fx-border-color: -fx-border-strong;
+    -fx-border-width: 1.4;
+    -fx-border-radius: 8;
+    -fx-text-fill: -fx-text-secondary;
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+    -fx-pref-width: 46;
+    -fx-pref-height: 40;
+    -fx-cursor: hand;
+}
+
+.seat:hover {
+    -fx-background-color: -fx-bg-hover;
+    -fx-border-color: -fx-accent;
+    -fx-text-fill: -fx-text-primary;
+}
+
+.seat:selected {
+    -fx-background-color: -fx-accent;
+    -fx-border-color: -fx-accent;
+    -fx-text-fill: -fx-accent-ink;
+}
+
+.seat:disabled {
+    -fx-background-color: #1b222e;
+    -fx-border-color: #232b38;
+    -fx-text-fill: #4a5468;
+    -fx-cursor: not-allowed;
+    -fx-opacity: 0.85;
+}
+
+.seat-legend {
+    -fx-background-color: -fx-bg-elevated;
+    -fx-background-radius: 8;
+    -fx-border-color: -fx-border-subtle;
+    -fx-border-radius: 8;
+    -fx-padding: 8 12 8 12;
+}
+
+.legend-swatch {
+    -fx-background-radius: 5;
+    -fx-pref-width: 18;
+    -fx-pref-height: 18;
+    -fx-border-radius: 5;
+}
+
+.legend-available {
+    -fx-background-color: transparent;
+    -fx-border-color: -fx-border-strong;
+    -fx-border-width: 1.4;
+}
+
+.legend-selected {
+    -fx-background-color: -fx-accent;
+    -fx-border-color: -fx-accent;
+}
+
+.legend-booked {
+    -fx-background-color: #1b222e;
+    -fx-border-color: #232b38;
+}
+
+.screen-line {
+    -fx-background-color: -fx-border-strong;
+    -fx-background-radius: 3;
+    -fx-pref-height: 6;
+    -fx-max-width: 520;
+}
+
+/* ---------- Inputs ---------- */
+
+.text-field {
+    -fx-background-color: -fx-bg-elevated;
+    -fx-text-fill: -fx-text-primary;
+    -fx-border-color: -fx-border-subtle;
+    -fx-border-width: 1.2;
+    -fx-border-radius: 8;
+    -fx-padding: 11 12 11 12;
+    -fx-font-size: 14px;
+}
+
+.text-field:focused {
+    -fx-border-color: -fx-accent;
+    -fx-background-color: #202939;
+}
+
+.text-field.invalid {
+    -fx-border-color: -fx-danger;
+}
+
+.error-label {
+    -fx-text-fill: -fx-danger;
+    -fx-font-size: 12px;
+}
+
+.inline-note {
+    -fx-text-fill: -fx-text-secondary;
+    -fx-font-size: 12px;
+}
+
+.summary-panel {
+    -fx-background-color: -fx-bg-surface;
+    -fx-background-radius: 14;
+    -fx-border-color: -fx-border-subtle;
+    -fx-border-width: 1;
+    -fx-border-radius: 14;
+    -fx-padding: 18;
+}
+
+.summary-row {
+    -fx-padding: 5 0 5 0;
+}
+
+.seat-pill {
+    -fx-background-color: -fx-accent;
+    -fx-background-radius: 6;
+    -fx-padding: 3 9 3 9;
+}
+
+.seat-pill-text {
+    -fx-text-fill: -fx-accent-ink;
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+}
+
+/* ---------- Ticket ---------- */
+
+.ticket {
+    -fx-background-color: -fx-bg-surface;
+    -fx-background-radius: 18;
+    -fx-border-color: -fx-border-subtle;
+    -fx-border-width: 1;
+    -fx-border-radius: 18;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.45), 24, 0.18, 0, 10);
+}
+
+.ticket-stub {
+    -fx-background-color: -fx-bg-elevated;
+    -fx-background-radius: 14;
+    -fx-padding: 16;
+}
+
+.ticket-code {
+    -fx-text-fill: -fx-accent-strong;
+    -fx-font-size: 27px;
+    -fx-font-weight: bold;
+}
+
+.success-banner {
+    -fx-background-color: #16342a;
+    -fx-background-radius: 12;
+    -fx-border-color: -fx-success;
+    -fx-border-radius: 12;
+    -fx-padding: 14 18 14 18;
+}
+
+.success-text {
+    -fx-text-fill: -fx-success;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+}
+
+.banner {
+    -fx-background-color: -fx-danger-dim;
+    -fx-background-radius: 10;
+    -fx-border-color: -fx-danger;
+    -fx-border-radius: 10;
+    -fx-padding: 11 14 11 14;
+}
+
+.banner-text {
+    -fx-text-fill: -fx-danger;
+    -fx-font-size: 13px;
+}
+
+.scroll-pane {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-padding: 0;
+}
+
+.scroll-pane > .viewport {
+    -fx-background-color: transparent;
+}
+
+.vbox {
+    -fx-background-color: transparent;
+}
