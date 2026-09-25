@@ -18,7 +18,7 @@
 | `*Dao` (interfaces) | Persistence contracts per entity | — | CRUD/read methods | Model | Interface-based polymorphism |
 | `Sqlite*Dao` | JDBC implementations | Connection | implements interface methods | DatabaseManager | Polymorphism, Encapsulation |
 | `DatabaseManager` | Connection + schema lifecycle | connection | init(), getConnection(), close() | — | Encapsulation |
-| `SeedData` | Idempotent initial data insert | — | seedIfEmpty() | DAOs | — |
+| `SeedData` | Idempotent initial data insert | — | seedIfEmpty() | DatabaseManager (JDBC) | — |
 | `BookingIdGenerator` | Unique ID generation | — | generate() | — | Utility |
 
 Full narrative justification for each OOP concept is in `07-oop/oop-design.md`.

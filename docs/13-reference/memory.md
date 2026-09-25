@@ -62,7 +62,11 @@ The UI must be a genuinely polished, premium-feeling interface — explicitly ta
 - 6 tables: `movie`, `theatre`, `show`, `seat`, `booking`, `booking_seat`. Full DDL in `docs/08-database/schema.md`.
 - The shared JDBC connection enables SQLite foreign-key enforcement with `PRAGMA foreign_keys = ON`.
 - Duplicate-seat prevention enforced at the DB layer via conditional `UPDATE ... WHERE booked = 0` + transaction rollback on any failed row — not just app-level checks.
-- Exact seed dataset (movie titles, theatre name(s), show count/times, seats-per-show grid size) is **NOT YET FINALIZED** — to be decided and recorded here during Phase 3 implementation, using placeholder/generic data unless the user supplies real values.
+- Exact seed dataset finalized in Phase 3:
+  - Movies: `The Last Horizon` (Sci-Fi, 180.0, 128 min), `Midnight Echoes` (Thriller, 160.0, 112 min), `Beyond the Blue` (Adventure, 140.0, 136 min).
+  - Theatre: `CineNova Grand`, `City Center`, 3 screens.
+  - Shows: 6 total, using `firstShowDate = first-run local date + 1 day`; 10:00/14:00 on day 1, 11:00/17:00 on day 2, 13:00/19:00 on day 3, with the movie/screen assignments recorded in `docs/08-database/schema.md`.
+  - Seats: rows `A`-`E`, columns 1-6, 30 per show and 180 total, all start unbooked.
 - Booking ID format is **NOT YET FINALIZED** — proposed default `BK-<yyyyMMddHHmmss>-<3-digit-seq>`, to be confirmed/recorded during Phase 5.
 - Weekend-pricing selection rule is **NOT YET FINALIZED** — proposed default: show falls on Saturday/Sunday -> WeekendPricing, else StandardPricing; to be confirmed/recorded during Phase 5.
 
@@ -71,7 +75,7 @@ The UI must be a genuinely polished, premium-feeling interface — explicitly ta
 Phase  0 (Documentation & Planning) — COMPLETE
 Phase  1 (Project Foundation)        — COMPLETE
 Phase  2 (Database Schema)           — COMPLETE
-Phase  3 (Domain Model + Seed Data)  — NOT STARTED
+Phase  3 (Domain Model + Seed Data)  — COMPLETE
 Phase  4 (DAO Layer)                 — NOT STARTED
 Phase  5 (Business Logic)            — NOT STARTED
 Phase  6 (UI: Movies/Shows)          — NOT STARTED
@@ -88,9 +92,12 @@ Phase 10 (Final Testing/Polish)      — NOT STARTED
 - Local Phase 1 verification used the available Maven JDK 26 runtime while `maven.compiler.release=17` kept the project bytecode target at Java 17.
 - Phase 2 creates `./data/moviebooking.db` before the Home scene loads; manual first-run and re-run checks confirmed all 6 tables exist and remain empty.
 - `DatabaseManagerTest` uses an isolated temporary SQLite file and verifies the exact table/column sets, empty initial rows, shared connection reuse, foreign-key enforcement, and repeated initialization.
+- Phase 3 added immutable `Movie`, `Theatre`, `Show`, and `Seat` model classes plus abstract `Person` -> `Customer` inheritance; models contain no database code.
+- `SeedData` inserts the finalized dataset in one JDBC transaction and returns without changes when `movie` already contains rows; manual first-run and re-run checks confirmed 3/1/6/180 movie/theatre/show/seat counts both times.
 
 ## Problems and Resolutions
 - The first Phase 1 launch exposed a missing `fx` namespace declaration in `Home.fxml`. Adding the JavaFX FXML namespace resolved it; `mvn clean install` and `mvn clean javafx:run` then succeeded, and the Home window was manually verified and closed cleanly.
+- The first Phase 3 seed test expected `HH:mm` while SQLite JDBC returned equivalent zero-second ISO-8601 values as `HH:mm:ss`; the exact-value assertion now uses the normalized representation.
 
 ## Changes to Previous Decisions
 ```
@@ -99,12 +106,17 @@ New decision: Repository: https://github.com/adithya-1010010/BookShow.git
 Reason: The user confirmed this is a new greenfield project and explicitly supplied the empty BookShow repository for its history and push target.
 Date/Phase: 2026-09-25 / Phase 1
 Affected components: Git remote and repository links in project documentation
+
+Previous decision: SeedData depends on DAO implementations.
+New decision: SeedData uses the shared DatabaseManager JDBC connection directly.
+Reason: The DAO layer is intentionally delivered in Phase 4, while seed bootstrap must run during Phase 3 startup; keeping the SQL inside the db bootstrap class preserves the one-way UI -> Service -> DAO -> Database layering for application features.
+Date/Phase: 2026-09-25 / Phase 3
+Affected components: `db/SeedData.java` and `04-architecture/component-design.md`
 ```
 
 ## Open Questions (must be resolved before the relevant phase begins)
-1. Exact seed dataset content (movie titles, theatre name, show schedule) — resolve before/at Phase 3.
-2. Exact Booking ID format — resolve before/at Phase 5.
-3. Exact weekend-pricing selection rule and surcharge amount — resolve before/at Phase 5.
+1. Exact Booking ID format — resolve before/at Phase 5.
+2. Exact weekend-pricing selection rule and surcharge amount — resolve before/at Phase 5.
 
 ## Rules for Future Development (Anti-Hallucination)
 1. Do not invent requirements not present in `context.md` or this file.

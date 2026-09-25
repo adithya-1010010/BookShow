@@ -85,7 +85,7 @@ Read memory.md + architecture.md + this phase's spec
 5. Document every deviation in `memory.md`.
 
 ## 10. Open Items to Resolve During Implementation (not blocking, but must be recorded when decided)
-- Exact seed dataset content (Phase 3)
+- Exact seed dataset content — RESOLVED in Phase 3; recorded in `13-reference/memory.md`
 - Exact Booking ID format (Phase 5)
 - Exact weekend-pricing rule/surcharge (Phase 5)
 

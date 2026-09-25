@@ -13,4 +13,3 @@
 
 ## Explicit Unknowns (must be resolved before the relevant phase, not guessed)
 - Exact Booking ID format — to be decided at Phase 5 and documented in memory.md (default proposal: `BK-<yyyyMMddHHmmss>-<3-digit-seq>` unless the user specifies otherwise).
-- Exact seed dataset content (which movie titles/theatre names to use) — placeholder/generic data will be used unless the user supplies specifics.

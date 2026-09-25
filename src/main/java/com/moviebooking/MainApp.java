@@ -1,6 +1,7 @@
 package com.moviebooking;
 
 import com.moviebooking.db.DatabaseManager;
+import com.moviebooking.db.SeedData;
 import java.io.IOException;
 import java.sql.SQLException;
 import javafx.application.Application;
@@ -14,6 +15,7 @@ public class MainApp extends Application {
     @Override
     public void start(Stage stage) throws IOException, SQLException {
         DatabaseManager.init();
+        SeedData.seedIfEmpty();
 
         FXMLLoader loader = new FXMLLoader(
                 getClass().getResource("/com/moviebooking/views/Home.fxml"));

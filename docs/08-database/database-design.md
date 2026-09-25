@@ -10,6 +10,9 @@ SQLite, single local file at `./data/moviebooking.db`, created/managed by `Datab
 - `booking` — a confirmed booking (customer + show + total cost + generated ID)
 - `booking_seat` — join table: which seats belong to which booking
 
+## Seeding
+`SeedData.seedIfEmpty()` inserts 3 movies, 1 theatre, 6 shows, and 180 seats (30 per show) in one transaction when the `movie` table is empty. The exact dataset is documented in `schema.md`.
+
 ## How Duplicate Seat Booking Is Prevented
 1. `seat.booked` is a boolean column, defaulting to 0 (false).
 2. Booking a seat is an atomic transaction: `UPDATE seat SET booked = 1 WHERE id = ? AND booked = 0`, checked against affected-row-count.

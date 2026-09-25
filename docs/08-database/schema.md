@@ -62,5 +62,36 @@ erDiagram
     SEAT ||--o{ BOOKING_SEAT : "reserved by"
 ```
 
-## Seed Data (Phase 3)
-Small fixed dataset: a handful of movies, 1-2 theatres, several shows, and generated seat rows per show (e.g., 5 rows x 6 columns = 30 seats/show). Exact titles/names are placeholders unless the user specifies real ones (see `assumptions-and-constraints.md`).
+## Seed Data (implemented in Phase 3)
+
+`SeedData.seedIfEmpty()` runs one transaction only when `movie` is empty.
+
+### Movies
+| Title | Genre | Base Price | Duration |
+|---|---|---|---|
+| The Last Horizon | Sci-Fi | 180.0 | 128 min |
+| Midnight Echoes | Thriller | 160.0 | 112 min |
+| Beyond the Blue | Adventure | 140.0 | 136 min |
+
+### Theatre
+| Name | Location | Screens |
+|---|---|---|
+| CineNova Grand | City Center | 3 |
+
+### Shows
+`firstShowDate` is the local date on which the database is first seeded, plus one day.
+
+| Date | Time | Movie | Screen |
+|---|---|---|---|
+| firstShowDate | 10:00 | The Last Horizon | 1 |
+| firstShowDate | 14:00 | Midnight Echoes | 2 |
+| firstShowDate + 1 day | 11:00 | Beyond the Blue | 1 |
+| firstShowDate + 1 day | 17:00 | The Last Horizon | 2 |
+| firstShowDate + 2 days | 13:00 | Midnight Echoes | 3 |
+| firstShowDate + 2 days | 19:00 | Beyond the Blue | 1 |
+
+### Seats
+- 5 rows: `A`, `B`, `C`, `D`, `E`
+- 6 columns per row: `1` through `6`
+- 30 seats per show, 180 seats total
+- All seats start with `booked = 0`
