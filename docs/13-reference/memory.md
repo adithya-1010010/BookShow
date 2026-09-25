@@ -67,8 +67,9 @@ The UI must be a genuinely polished, premium-feeling interface — explicitly ta
   - Theatre: `CineNova Grand`, `City Center`, 3 screens.
   - Shows: 6 total, using `firstShowDate = first-run local date + 1 day`; 10:00/14:00 on day 1, 11:00/17:00 on day 2, 13:00/19:00 on day 3, with the movie/screen assignments recorded in `docs/08-database/schema.md`.
   - Seats: rows `A`-`E`, columns 1-6, 30 per show and 180 total, all start unbooked.
-- Booking ID format is **NOT YET FINALIZED** — proposed default `BK-<yyyyMMddHHmmss>-<3-digit-seq>`, to be confirmed/recorded during Phase 5.
-- Weekend-pricing selection rule is **NOT YET FINALIZED** — proposed default: show falls on Saturday/Sunday -> WeekendPricing, else StandardPricing; to be confirmed/recorded during Phase 5.
+- Booking ID format is **FINALIZED in Phase 5**: `BK-<yyyyMMddHHmmss>-<3-digit sequence>`, e.g. `BK-20260926103045-001`. Produced by `util/BookingIdGenerator`; the sequence is a process-wide `AtomicInteger` shared by all generator instances, so IDs are unique per (timestamp, sequence) with 1000 IDs/second capacity. The `booking.booking_code` UNIQUE constraint is the final backstop and would fail the insert loudly on any collision.
+- Weekend-pricing selection rule is **FINALIZED in Phase 5**: a show whose `show_datetime` falls on **Saturday or Sunday** uses `WeekendPricing` (`basePrice x seatCount x 1.2`); every other day uses `StandardPricing` (`basePrice x seatCount`). The rule lives in `service/PricingStrategySelector.forDayOfWeek(DayOfWeek)`; `BookingService` calls it and never branches on day type itself, preserving the polymorphism goal in `07-oop/polymorphism.md`.
+- `WeekendPricing` has a second constructor taking an explicit surcharge (default `1.2`) so the surcharge can be varied in tests without changing production behaviour.
 
 ## Phase Status
 ```
@@ -77,7 +78,7 @@ Phase  1 (Project Foundation)        — COMPLETE
 Phase  2 (Database Schema)           — COMPLETE
 Phase  3 (Domain Model + Seed Data)  — COMPLETE
 Phase  4 (DAO Layer)                 — COMPLETE
-Phase  5 (Business Logic)            — NOT STARTED
+Phase  5 (Business Logic)            — COMPLETE
 Phase  6 (UI: Movies/Shows)          — NOT STARTED
 Phase  7 (UI: Seat Selection)        — NOT STARTED
 Phase  8 (UI: Customer/Confirmation) — NOT STARTED
@@ -99,11 +100,18 @@ Phase 10 (Final Testing/Polish)      — NOT STARTED
 - `SqliteShowDao` JOINs `show`+`movie`+`theatre` in one query so `Show` objects are returned fully populated (title/price for pricing, theatre name for confirmation) without extra round-trips.
 - `SqliteBookingDao.insertBooking` runs the whole booking in ONE transaction: insert `booking` row -> `SeatDao.markBooked` (conditional `UPDATE ... WHERE id = ? AND booked = 0`) -> insert `booking_seat` rows -> commit. If the conditional update affects fewer rows than requested, it throws `DataAccessException` and rolls back, so duplicate-seat booking is impossible at the DB layer. `BookingService` (Phase 5) additionally re-checks availability and throws `SeatUnavailableException` for the user-facing path.
 - Phase 4 tests (JUnit, isolated temp SQLite via test-only `com.moviebooking.db.TestDatabase`): movie/show/seat reads, show JOIN correctness, and booking insert + two rollback cases (already-booked seat, unknown seat id) proving no partial state. 20 tests total, all passing.
+- Phase 5 added `service/` (`PricingStrategy`, `StandardPricing`, `WeekendPricing`, `PricingStrategySelector`, `MovieService`, `BookingService`, `SeatUnavailableException`, `ValidationException`) and `util/BookingIdGenerator`. `service/` depends only on `dao/` + `model/` + `util/`, never on JavaFX.
+- `BookingService.createBooking(show, seats, customer)` performs a two-stage guard: (1) service-level re-check via `SeatDao.findByShowId` immediately before writing -> `SeatUnavailableException`; (2) DB-level conditional `UPDATE ... WHERE booked = 0` inside the transaction -> `SeatConflictException`, rolled back. Only after both checks does it price the booking and call `BookingDao.insertBooking`.
+- `BookingService` also rejects empty seat lists, null show/customer, non-positive show ids, and seats belonging to a different show, all via `ValidationException`.
+- Two extra classes beyond the Phase 5 file list were added deliberately: `service/PricingStrategySelector` (encapsulates the day-of-week rule so `BookingService` stays free of `if/else` on strategy type) and `dao/SeatConflictException extends DataAccessException` (lets the service convert a DB-level seat conflict into `SeatUnavailableException` without fragile message string-matching).
+- Phase 5 tests cover TC-003, TC-004, TC-005, TC-006, TC-012 plus validation edge cases. 49 tests total, all passing.
+- Booking totals are stored as raw doubles; **display formatting to 2 decimal places is a UI-layer concern** (Phase 6-8), so no rounding is applied in the service or DAO.
 
 ## Problems and Resolutions
 - The first Phase 1 launch exposed a missing `fx` namespace declaration in `Home.fxml`. Adding the JavaFX FXML namespace resolved it; `mvn clean install` and `mvn clean javafx:run` then succeeded, and the Home window was manually verified and closed cleanly.
 - The first Phase 3 seed test expected `HH:mm` while SQLite JDBC returned equivalent zero-second ISO-8601 values as `HH:mm:ss`; the exact-value assertion now uses the normalized representation.
 - Phase 4 `SqliteBookingDao` initially failed to compile because `connection.getAutoCommit()` throws `SQLException` and the read sat outside the try block. The method was restructured into `insertBooking` (reads/restores auto-commit, wrapping SQL failures in `DataAccessException`) plus a private `runInTransaction` (commit/rollback logic), which keeps the transaction boundaries explicit and compiles cleanly.
+- Phase 5 tests initially failed for two reasons worth remembering: (1) the Booking ID test wrongly expected a dash inside the timestamp (`BK-20260926-103045-001`) when the documented format has none (`BK-20260926103045-001`); (2) booking-total assertions hard-coded `180.0` while the DAO orders movies by title, so `findAll().get(0)` is "Beyond the Blue" at `140.0`, and because `firstShowDate` lands on a weekend the surcharge applied. Fixed by asserting persisted totals against `bookingService.calculateTotal(...)` (the persistence check is the point of those tests) and by keeping the date-dependent pricing rules in dedicated tests that construct `Show` objects with fixed dates.
 
 ## Changes to Previous Decisions
 ```
@@ -118,11 +126,16 @@ New decision: SeedData uses the shared DatabaseManager JDBC connection directly.
 Reason: The DAO layer is intentionally delivered in Phase 4, while seed bootstrap must run during Phase 3 startup; keeping the SQL inside the db bootstrap class preserves the one-way UI -> Service -> DAO -> Database layering for application features.
 Date/Phase: 2026-09-25 / Phase 3
 Affected components: `db/SeedData.java` and `04-architecture/component-design.md`
+
+Previous decision: Pricing-strategy selection would be decided by an if/else at the point BookingService is invoked.
+New decision: The rule is encapsulated in `service/PricingStrategySelector.forDayOfWeek(DayOfWeek)`, which BookingService calls.
+Reason: `07-oop/polymorphism.md` explicitly requires that BookingService call `priceFor(...)` polymorphically without an `if/else` on show type. Keeping the rule in a separate selector honours that goal and makes the rule independently unit-testable.
+Date/Phase: 2026-09-25 / Phase 5
+Affected components: `service/PricingStrategySelector.java`, `service/BookingService.java`, `04-architecture/component-design.md`
 ```
 
 ## Open Questions (must be resolved before the relevant phase begins)
-1. Exact Booking ID format — resolve before/at Phase 5.
-2. Exact weekend-pricing selection rule and surcharge amount — resolve before/at Phase 5.
+_None. Both previously open questions (Booking ID format, weekend-pricing rule) were resolved and recorded in Phase 5._
 
 ## Rules for Future Development (Anti-Hallucination)
 1. Do not invent requirements not present in `context.md` or this file.

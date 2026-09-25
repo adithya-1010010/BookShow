@@ -56,7 +56,7 @@ public final class SqliteBookingDao implements BookingDao {
             long bookingId = insertBookingRow(connection, booking);
             int markedSeats = seatDao.markBooked(seatIds, connection);
             if (markedSeats != seatIds.size()) {
-                throw new DataAccessException(
+                throw new SeatConflictException(
                         "One or more seats are already booked; booking was rolled back");
             }
             insertBookingSeats(connection, bookingId, seatIds);
