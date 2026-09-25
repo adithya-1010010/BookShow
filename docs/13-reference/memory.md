@@ -76,7 +76,7 @@ Phase  0 (Documentation & Planning) — COMPLETE
 Phase  1 (Project Foundation)        — COMPLETE
 Phase  2 (Database Schema)           — COMPLETE
 Phase  3 (Domain Model + Seed Data)  — COMPLETE
-Phase  4 (DAO Layer)                 — NOT STARTED
+Phase  4 (DAO Layer)                 — COMPLETE
 Phase  5 (Business Logic)            — NOT STARTED
 Phase  6 (UI: Movies/Shows)          — NOT STARTED
 Phase  7 (UI: Seat Selection)        — NOT STARTED
@@ -94,10 +94,16 @@ Phase 10 (Final Testing/Polish)      — NOT STARTED
 - `DatabaseManagerTest` uses an isolated temporary SQLite file and verifies the exact table/column sets, empty initial rows, shared connection reuse, foreign-key enforcement, and repeated initialization.
 - Phase 3 added immutable `Movie`, `Theatre`, `Show`, and `Seat` model classes plus abstract `Person` -> `Customer` inheritance; models contain no database code.
 - `SeedData` inserts the finalized dataset in one JDBC transaction and returns without changes when `movie` already contains rows; manual first-run and re-run checks confirmed 3/1/6/180 movie/theatre/show/seat counts both times.
+- Phase 4 added `model/Booking.java` (immutable, carries show + customer + seats + total + createdAt) because `BookingDao.insertBooking` needs it; it was deferred out of Phase 3 and is listed in the architecture's `model/` package.
+- Phase 4 DAO layer: 5 interfaces (`MovieDao`, `TheatreDao`, `ShowDao`, `SeatDao`, `BookingDao`) + 5 `Sqlite*Dao` impls + unchecked `DataAccessException`. `Sqlite*Dao` map `ResultSet` rows to model objects via `PreparedStatement`; no raw `SQLException` escapes `dao/`.
+- `SqliteShowDao` JOINs `show`+`movie`+`theatre` in one query so `Show` objects are returned fully populated (title/price for pricing, theatre name for confirmation) without extra round-trips.
+- `SqliteBookingDao.insertBooking` runs the whole booking in ONE transaction: insert `booking` row -> `SeatDao.markBooked` (conditional `UPDATE ... WHERE id = ? AND booked = 0`) -> insert `booking_seat` rows -> commit. If the conditional update affects fewer rows than requested, it throws `DataAccessException` and rolls back, so duplicate-seat booking is impossible at the DB layer. `BookingService` (Phase 5) additionally re-checks availability and throws `SeatUnavailableException` for the user-facing path.
+- Phase 4 tests (JUnit, isolated temp SQLite via test-only `com.moviebooking.db.TestDatabase`): movie/show/seat reads, show JOIN correctness, and booking insert + two rollback cases (already-booked seat, unknown seat id) proving no partial state. 20 tests total, all passing.
 
 ## Problems and Resolutions
 - The first Phase 1 launch exposed a missing `fx` namespace declaration in `Home.fxml`. Adding the JavaFX FXML namespace resolved it; `mvn clean install` and `mvn clean javafx:run` then succeeded, and the Home window was manually verified and closed cleanly.
 - The first Phase 3 seed test expected `HH:mm` while SQLite JDBC returned equivalent zero-second ISO-8601 values as `HH:mm:ss`; the exact-value assertion now uses the normalized representation.
+- Phase 4 `SqliteBookingDao` initially failed to compile because `connection.getAutoCommit()` throws `SQLException` and the read sat outside the try block. The method was restructured into `insertBooking` (reads/restores auto-commit, wrapping SQL failures in `DataAccessException`) plus a private `runInTransaction` (commit/rollback logic), which keeps the transaction boundaries explicit and compiles cleanly.
 
 ## Changes to Previous Decisions
 ```
