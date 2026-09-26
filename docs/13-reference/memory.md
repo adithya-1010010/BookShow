@@ -80,11 +80,18 @@ Phase  3 (Domain Model + Seed Data)  — COMPLETE
 Phase  4 (DAO Layer)                 — COMPLETE
 Phase  5 (Business Logic)            — COMPLETE
 Phase  6 (UI: Movies/Shows)          — COMPLETE
-Phase  7 (UI: Seat Selection)        — NOT STARTED
+Phase  7 (UI: Seat Selection)        — COMPLETE (committed; visual checks unverified, see below)
 Phase  8 (UI: Customer/Confirmation) — NOT STARTED
 Phase  9 (Validation/Error Handling) — NOT STARTED
 Phase 10 (Final Testing/Polish)      — NOT STARTED
 ```
+
+**Uncommitted work in the working tree:** `views/CustomerDetails.fxml` + `controller/CustomerDetailsController.java`
+exist as a deliberate Phase 6-style placeholder stub (a `placeholderLabel` reading "Form is being
+built." and a Back button), so the seat screen's Continue has a valid navigation target. They are
+Phase 8 work-in-progress and must be replaced, not extended, when Phase 8 starts. `Screens.CONFIRMATION`
+already declares a path for a `Confirmation.fxml` that does not exist yet, so
+`SceneNavigator.goTo(Screens.CONFIRMATION)` currently throws `IllegalStateException`.
 
 ## Important Discoveries
 - The project is greenfield in `/Users/adithyar/Desktop/java_project`; the user supplied the empty `https://github.com/adithya-1010010/BookShow.git` repository as its remote.
@@ -113,6 +120,11 @@ Phase 10 (Final Testing/Polish)      — NOT STARTED
 - Phase 6 included a **sanctioned stub** `SeatSelection.fxml`/`SeatSelectionController` so Continue has a valid navigation target; Phase 7 replaces it with the real seat map.
 - Phase 6 Problems and Resolutions: FXML cannot place a `ToggleGroup` as a child node ("Unable to coerce ToggleGroup to class javafx.scene.Node"), so the group is created in the controller instead; and `ToggleGroup` pre-selects its first toggle, so `showGroup.selectToggle(null)` is called after the rows are built to guarantee nothing is selected on arrival. Also corrected a wrong `setFullWidth`/`setSelectedToggle` assumption (those are not `ToggleButton`/`ToggleGroup` APIs — use `setMaxWidth`/`selectToggle`).
 - UI verification approach: since this session cannot view images, screens were verified with a **throwaway JavaFX snapshot harness kept outside the repo** (`/tmp/bsharness/`) that loads each FXML, applies `styles.css`, and writes a PNG. A pixel analysis confirmed the theme renders (Home: 98% base background + accent text/button; Movie List: cards, poster blocks and accent buttons; Show Selection: header/footer surfaces and show rows, and correctly *no* accent because nothing is selected). The harness is never committed.
+- Phase 7 replaced the Phase 6 `SeatSelection` stub with a real seat map. `SeatSelectionController.initialize()` reads the chosen `Show` from `BookingSession` and **bounces to `Screens.SHOW_SELECTION` if it is null**, so the screen is safe to reach without a prior show selection. Seats come from `BookingService.getSeatsForShow(showId)` (never from `SeatDao` directly), grouped by `row_label` with `LinkedHashMap` to keep A-E order, sorted by `column_number`, and added to a `GridPane` whose column 0 holds the row label.
+- Each seat is a `ToggleButton` styled `seat`, holding its `Seat` as `userData` and `setDisable(seat.isBooked())` for booked seats. Selection/deselection updates the `BookingSession` seat list and the footer; `Continue` is disabled at 0 seats. Running total is `BookingService.calculateTotal(show, count)` rendered through `ui/Currency`, so the seat screen shows the same weekend-surcharge total the booking will actually be charged.
+- **`booking.setShow(...)` clears the selected-seat list** (`BookingSession.setShow` calls `selectedSeats.clear()`), and `handleBack` on the seat screen also clears it. Re-picking a show therefore never carries stale seats forward — do not add caching here without re-checking this.
+- Phase 7 needed **no `styles.css` change**: Phase 6 had already committed the full theme, including the seat-state classes (`.seat`, `.seat:selected`, `.seat:disabled`, `.seat-legend`, `.legend-swatch` + `.legend-available/-selected/-booked`, `.screen-line`, `.scroll-pane`) and, ahead of time, the Phase 8 classes (`.text-field`, `.summary-panel`, `.ticket`, `.ticket-code`, `.banner`). `phase-07.md` predicted styles would need extending; they did not. Expect the same for Phase 8.
+- Phase 7 process note: the work existed in the working tree uncommitted while this file still said `NOT STARTED`. Per `implementation-plan.md` Section 0 that was reported rather than acted on silently, then reconciled (dead field removed, visual checks recorded as unverified, this file updated) before committing. A dead `Map<Long, ToggleButton> seatButtons` field that was written but never read was removed during the reconciliation.
 
 ## Problems and Resolutions
 - The first Phase 1 launch exposed a missing `fx` namespace declaration in `Home.fxml`. Adding the JavaFX FXML namespace resolved it; `mvn clean install` and `mvn clean javafx:run` then succeeded, and the Home window was manually verified and closed cleanly.
@@ -149,6 +161,18 @@ Affected components: `ui/`, `MainApp.java`, all `controller/` classes
 
 ## Open Questions (must be resolved before the relevant phase begins)
 _None. Both previously open questions (Booking ID format, weekend-pricing rule) were resolved and recorded in Phase 5._
+
+## Outstanding Verification (must be closed before Phase 8 is called COMPLETE)
+- **Phase 7 seat-screen visuals are UNVERIFIED.** The implementation was committed without a
+  human eye on it, because the session that wrote it could not launch the GUI headlessly. The user
+  accepted this. Unchecked items from the `phase-07.md` completion checklist:
+  1. seat grid lays out correctly (row label column, seats A1-E6, `SCREEN` bar) for a real show,
+  2. booked seats are visibly dimmed **and** non-selectable,
+  3. multi-seat select/deselect updates count + total and stays consistent,
+  4. Continue is disabled at 0 seats and enabled at >= 1.
+  Everything that *can* be checked headlessly was checked: sources compile and `mvn test` is
+  49/49 green, every `styleClass` referenced by `SeatSelection.fxml` exists in `styles.css`, and
+  `ShowSelectionController` populates `BookingSession.setShow(...)` that the seat screen consumes.
 
 ## Rules for Future Development (Anti-Hallucination)
 1. Do not invent requirements not present in `context.md` or this file.

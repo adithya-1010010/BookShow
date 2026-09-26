@@ -25,14 +25,20 @@ User can visually select seats for a show with correct availability states.
 
 ## Completion Checklist
 ```
-[ ] Seat grid renders correctly for a given show
-[ ] Booked seats are visibly disabled and non-selectable
-[ ] Multi-seat selection/deselection works correctly
-[ ] Continue button disabled until >=1 seat selected
+[?] Seat grid renders correctly for a given show          -- UNVERIFIED (needs a human eye)
+[?] Booked seats are visibly disabled and non-selectable  -- UNVERIFIED (needs a human eye)
+[?] Multi-seat selection/deselection works correctly      -- UNVERIFIED (needs a human eye)
+[?] Continue button disabled until >=1 seat selected      -- UNVERIFIED (needs a human eye)
 ```
 
+All four items are implemented in `SeatSelectionController` but were **never visually confirmed**:
+the session that wrote this phase could not launch the JavaFX GUI headlessly and the user accepted
+committing on that basis. Headlessly-verifiable checks did pass: the project compiles, `mvn test` is
+49/49 green, and every `styleClass` used by `SeatSelection.fxml` exists in `styles.css`.
+See "Outstanding Verification" in `docs/13-reference/memory.md`.
+
 ## Documentation Updates
-`memory.md`: Phase 7 -> COMPLETE.
+`memory.md`: Phase 7 -> COMPLETE (with the visual-verification caveat above).
 
 ## Git Checkpoint
 `git add . && git commit -m "phase-07: implement seat selection UI" && git push`

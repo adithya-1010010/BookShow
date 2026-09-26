@@ -51,6 +51,7 @@ mvn test
 **Phase 4 (DAO Layer): COMPLETE**
 **Phase 5 (Business Logic): COMPLETE**
 **Phase 6 (UI: Movies/Shows): COMPLETE**
+**Phase 7 (UI: Seat Selection): COMPLETE** (seat-grid visuals not yet confirmed by a human run)
 
 Live, authoritative status: [`docs/13-reference/memory.md`](docs/13-reference/memory.md)
 
